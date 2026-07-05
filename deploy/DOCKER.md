@@ -1,6 +1,13 @@
-# Sub2API Docker Image
+# Sub2API Bundled Redis Image
 
-Sub2API is an AI API Gateway Platform for distributing and managing AI product subscription API quotas.
+This image packages Sub2API and Redis in the same container.
+You only need to provide PostgreSQL connection settings from the outside.
+
+## Image
+
+```bash
+ghcr.io/<owner>/sub2api-redis:latest
+```
 
 ## Quick Start
 
@@ -8,69 +15,35 @@ Sub2API is an AI API Gateway Platform for distributing and managing AI product s
 docker run -d \
   --name sub2api \
   -p 8080:8080 \
-  -e DATABASE_URL="postgres://user:pass@host:5432/sub2api" \
-  -e REDIS_URL="redis://host:6379" \
-  weishaw/sub2api:latest
+  -e DATABASE_HOST=host.docker.internal \
+  -e DATABASE_PORT=5432 \
+  -e DATABASE_USER=sub2api \
+  -e DATABASE_PASSWORD=change_this_secure_password \
+  -e DATABASE_DBNAME=sub2api \
+  -e DATABASE_SSLMODE=disable \
+  ghcr.io/<owner>/sub2api-redis:latest
 ```
 
-## Docker Compose
+If your PostgreSQL server is in another container on the same Docker network, set
+`DATABASE_HOST` to that container name instead.
 
-```yaml
-version: '3.8'
-
-services:
-  sub2api:
-    image: weishaw/sub2api:latest
-    ports:
-      - "8080:8080"
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/sub2api?sslmode=disable
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - db
-      - redis
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=sub2api
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis_data:/data
-
-volumes:
-  postgres_data:
-  redis_data:
-```
-
-## Environment Variables
+## Minimal Environment Variables
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes | - |
-| `REDIS_URL` | Redis connection string | Yes | - |
-| `PORT` | Server port | No | `8080` |
-| `GIN_MODE` | Gin framework mode (`debug`/`release`) | No | `release` |
+| `DATABASE_HOST` | PostgreSQL host | Yes | - |
+| `DATABASE_PORT` | PostgreSQL port | No | `5432` |
+| `DATABASE_USER` | PostgreSQL user | No | `postgres` |
+| `DATABASE_PASSWORD` | PostgreSQL password | Yes | - |
+| `DATABASE_DBNAME` | PostgreSQL database name | No | `sub2api` |
+| `DATABASE_SSLMODE` | PostgreSQL SSL mode | No | `disable` |
 
-## Supported Architectures
+Redis runs locally inside the container and is already wired to `127.0.0.1:6379`.
+You do not need to set any Redis environment variables for the bundled image.
 
-- `linux/amd64`
-- `linux/arm64`
+## Notes
 
-## Tags
-
-- `latest` - Latest stable release
-- `x.y.z` - Specific version
-- `x.y` - Latest patch of minor version
-- `x` - Latest minor of major version
-
-## Links
-
-- [GitHub Repository](https://github.com/weishaw/sub2api)
-- [Documentation](https://github.com/weishaw/sub2api#readme)
+- The container keeps application data under `/app/data`.
+- The bundled Redis instance stores its data in `/app/data/redis`.
+- If you want the previous deployment model with an external Redis service, use
+  the standard Sub2API image instead of this bundled one.
