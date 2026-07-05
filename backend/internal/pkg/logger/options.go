@@ -104,14 +104,27 @@ func resolveLogFilePath(explicit string) string {
 }
 
 func bootstrapOptions() InitOptions {
+	quiet := envBool("LOG_QUIET", false)
+	toStdout := envBool("LOG_OUTPUT_TO_STDOUT", true)
+	toFile := envBool("LOG_OUTPUT_TO_FILE", false)
+	filePath := strings.TrimSpace(os.Getenv("LOG_OUTPUT_FILE_PATH"))
+	if quiet {
+		toStdout = false
+		toFile = true
+		if filePath == "" {
+			filePath = os.DevNull
+		}
+	}
 	return InitOptions{
-		Level:       "info",
-		Format:      "console",
-		ServiceName: "sub2api",
-		Environment: "bootstrap",
+		Level:           envString("LOG_LEVEL", "info"),
+		Format:          envString("LOG_FORMAT", "console"),
+		ServiceName:     envString("LOG_SERVICE_NAME", "sub2api"),
+		Environment:     envString("LOG_ENV", "bootstrap"),
+		StacktraceLevel: envString("LOG_STACKTRACE_LEVEL", "error"),
 		Output: OutputOptions{
-			ToStdout: true,
-			ToFile:   false,
+			ToStdout: toStdout,
+			ToFile:   toFile,
+			FilePath: filePath,
 		},
 		Rotation: RotationOptions{
 			MaxSizeMB:  100,
@@ -125,6 +138,25 @@ func bootstrapOptions() InitOptions {
 			Initial:    100,
 			Thereafter: 100,
 		},
+	}
+}
+
+func envString(key, defaultValue string) string {
+	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func envBool(key string, defaultValue bool) bool {
+	value := strings.TrimSpace(strings.ToLower(os.Getenv(key)))
+	switch value {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return defaultValue
 	}
 }
 

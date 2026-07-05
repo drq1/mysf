@@ -38,9 +38,11 @@ redis-server \
     --bind "$REDIS_BIND" \
     --port "$REDIS_PORT" \
     --dir "$REDIS_DATA_DIR" \
+    --loglevel "${REDIS_LOGLEVEL:-warning}" \
     --appendonly "$REDIS_APPENDONLY" \
     --save 60 1000 \
-    --protected-mode yes &
+    --protected-mode yes \
+    >/dev/null 2>&1 &
 redis_pid=$!
 
 trap cleanup INT TERM EXIT
@@ -61,7 +63,7 @@ if [ "$redis_ready" -ne 1 ]; then
     exit 1
 fi
 
-"$@" &
+"$@" >/dev/null 2>&1 &
 app_pid=$!
 
 wait "$app_pid"

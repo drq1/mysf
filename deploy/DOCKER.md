@@ -40,6 +40,8 @@ If your PostgreSQL server is in another container on the same Docker network, se
 
 Redis runs locally inside the container and is already wired to `127.0.0.1:6379`.
 You do not need to set any Redis environment variables for the bundled image.
+This bundled image runs in quiet mode by default, so application and Redis logs
+are suppressed unless you explicitly override the log settings.
 
 ## Notes
 
