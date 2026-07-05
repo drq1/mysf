@@ -29,7 +29,7 @@ jobs:
         id: meta
         shell: bash
         run: |
-          IMAGE="ghcr.io/${{ steps.lowercase.outputs.owner }}/sub2api-redis"
+          IMAGE="ghcr.io/${{ steps.lowercase.outputs.owner }}/mysf"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             VERSION="${GITHUB_REF_NAME#v}"
             {
@@ -80,4 +80,4 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.title=Sub2API bundled Redis image
+            org.opencontainers.image.title=mysf bundled Redis image

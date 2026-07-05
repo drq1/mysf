@@ -1,4 +1,4 @@
-# Sub2API Bundled Redis Image
+# mysf Bundled Redis Image
 
 This image packages Sub2API and Redis in the same container.
 You only need to provide PostgreSQL connection settings from the outside.
@@ -6,7 +6,7 @@ You only need to provide PostgreSQL connection settings from the outside.
 ## Image
 
 ```bash
-ghcr.io/<owner>/sub2api-redis:latest
+ghcr.io/<owner>/mysf:latest
 ```
 
 ## Quick Start
@@ -21,7 +21,7 @@ docker run -d \
   -e DATABASE_PASSWORD=change_this_secure_password \
   -e DATABASE_DBNAME=sub2api \
   -e DATABASE_SSLMODE=disable \
-  ghcr.io/<owner>/sub2api-redis:latest
+  ghcr.io/<owner>/mysf:latest
 ```
 
 If your PostgreSQL server is in another container on the same Docker network, set
